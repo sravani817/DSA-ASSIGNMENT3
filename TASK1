@@ -1,0 +1,147 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct Node {
+    char name[50];
+    struct Node* next;
+} Node;
+
+void displayContactList(Node* head) {
+    Node* temp = head;
+    printf("Contact list: ");
+    while (temp != NULL) {
+        printf("%s -> ", temp->name);
+        temp = temp->next;
+    }
+    printf("NULL\n");
+}
+
+void insertContact(Node** head, char newName[50], int position) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    strcpy(newNode->name, newName);
+    newNode->next = NULL;
+
+    if (position == 0) {
+        newNode->next = *head;
+        *head = newNode;
+    } else {
+        Node* temp = *head;
+        for (int i = 0; i < position - 1; i++) {
+            temp = temp->next;
+            if (temp == NULL) {
+                printf("Invalid position.\n");
+                free(newNode);
+                return;
+            }
+        }
+        newNode->next = temp->next;
+        temp->next = newNode;
+    }
+}
+
+void deleteContact(Node** head, char deleteName[50]) {
+    Node* temp = *head;
+    Node* prev = NULL;
+
+    while (temp != NULL) {
+        if (strcmp(temp->name, deleteName) == 0) {
+            if (prev == NULL) {
+                *head = temp->next;
+            } else {
+                prev->next = temp->next;
+            }
+            free(temp);
+            printf("Contact deleted.\n");
+            return;
+        }
+        prev = temp;
+        temp = temp->next;
+    }
+    printf("Contact not found.\n");
+}
+
+void searchContact(Node* head, char searchName[50]) {
+    int position = 0;
+    Node* temp = head;
+    while (temp != NULL) {
+        if (strcmp(temp->name, searchName) == 0) {
+            printf("%s found at position %d\n", searchName, position);
+            return;
+        }
+        temp = temp->next;
+        position++;
+    }
+    printf("%s not found.\n", searchName);
+}
+
+int main() {
+    Node* head = NULL;
+    int choice;
+
+    while (1) {
+        printf("1. Create the list of contacts\n");
+        printf("2. Insert a new contact\n");
+        printf("3. Delete a contact\n");
+        printf("4. Display contact list\n");
+        printf("5. Search for a contact\n");
+        printf("6. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter the number of contacts: ");
+                int numContacts;
+                scanf("%d", &numContacts);
+                for (int i = 0; i < numContacts; i++) {
+                    printf("Enter contact name %d: ", i + 1);
+                    char name[50];
+                    scanf("%s", name);
+                    insertContact(&head, name, i);
+                }
+                displayContactList(head);
+                break;
+            case 2:
+                printf("Enter the contact's name to insert: ");
+                char newName[50];
+                scanf("%s", newName);
+                printf("Enter the position (0-based index) to insert the contact: ");
+                int position;
+                scanf("%d", &position);
+                insertContact(&head, newName, position);
+                displayContactList(head);
+                break;
+            case 3:
+                printf("Delete by name or position? (n/p): ");
+                char deleteMethod;
+                scanf(" %c", &deleteMethod);
+                if (deleteMethod == 'n') {
+                    printf("Enter the contact's name to delete: ");
+                    char deleteName[50];
+                    scanf("%s", deleteName);
+                    deleteContact(&head, deleteName);
+                } else {
+                    printf("This option is not implemented.\n");
+                }
+                displayContactList(head);
+                break;
+            case 4:
+                displayContactList(head);
+                break;
+            case 5:
+                printf("Enter the contact's name to search: ");
+                char searchName[50];
+                scanf("%s", searchName);
+                searchContact(head, searchName);
+                break;
+            case 6:
+                printf("Exiting the program...\n");
+                return 0;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+
+    return 0;
+}
